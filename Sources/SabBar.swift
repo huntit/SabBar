@@ -194,10 +194,12 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
     open func toggleSidebar(visible: Bool) {
         if visible == false {
             self.sidebarWidthConstraint?.constant = 0
+            self.sidebar.isHidden = true
             self.navigationBar.isHidden = true
             self.tabBar.isHidden = false
         } else {
             self.sidebarWidthConstraint?.constant = self.sidebarWidth
+            self.sidebar.isHidden = false
             self.tabBar.isHidden = true
             self.navigationBar.isHidden = false
         }
@@ -534,7 +536,8 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
         sidebar.addConstraint(NSLayoutConstraint(item: tabTable, attribute: .bottom, relatedBy: .equal, toItem: sidebar, attribute: .bottom, multiplier: 1, constant: 0))
         sidebar.addConstraint(NSLayoutConstraint(item: tabTable, attribute: .leading, relatedBy: .equal, toItem: sidebar, attribute: .leading, multiplier: 1, constant: 0))
         sidebar.addConstraint(NSLayoutConstraint(item: tabTable, attribute: .trailing, relatedBy: .equal, toItem: sidebar, attribute: .trailing, multiplier: 1, constant: 0))
-        
+      
+      
         let border = UIView(frame: CGRect(x: 0, y: -navigationBarHeight, width: sidebarWidth, height: sidebar.frame.size.height + navigationBarHeight))
         border.backgroundColor = UIColor.lightGray
         border.translatesAutoresizingMaskIntoConstraints = false
@@ -579,8 +582,8 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
 }
 
 class SabBarCell: UITableViewCell {
-    let imageHeight : CGFloat = 32
-    let labelHeight : CGFloat = 14
+   let imageHeight : CGFloat = 44//32
+   let labelHeight : CGFloat = 22//14
     
     var tabLabel: UILabel!
     var tabImage: UIImageView!
@@ -614,7 +617,7 @@ class SabBarCell: UITableViewCell {
         tabLabel = UILabel(frame: CGRect(x: 0, y: imageHeight, width: self.frame.size.width, height: labelHeight))
         tabLabel.translatesAutoresizingMaskIntoConstraints = false
         tabLabel.textAlignment = .center
-        tabLabel.font = UIFont.systemFont(ofSize: 10)
+        tabLabel.font = UIFont.systemFont(ofSize: 13/*10*/)
         
         centeredView.addSubview(tabImage)
         centeredView.addSubview(tabLabel)
@@ -648,8 +651,8 @@ class SabBarCell: UITableViewCell {
             tabLabel.textColor = tintColor
             tabImage.image = tabSelectedImage
         } else {
-            tabImage.tintColor = UIColor.lightGray
-            tabLabel.textColor = UIColor.lightGray
+            tabImage.tintColor = UIColor(white: 0.9, alpha: 0.95)//UIColor.lightGray
+            tabLabel.textColor = UIColor(white: 0.9, alpha: 0.95)
             tabImage.image = tabDeselectedImage
         }
     }
