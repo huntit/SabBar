@@ -146,7 +146,15 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
             tabBar.tintColor = imageTint
         }
     }
-    
+
+   
+   /**
+    Choose a deselected color for the tabBar and the sidebar.
+    */
+   @IBInspectable open var deselectedColor : UIColor = {
+     return UIColor(white: 0.9, alpha: 0.95)
+   }()
+   
     /**
      If you enabled the `hasNavigation` property, you can add a `UIView`, or one
      of its subclasses like `UIButton`. This will be automatically centered 
@@ -358,7 +366,8 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
         let cell = tableView.dequeueReusableCell(withIdentifier: "tabCellIdentifier", for: indexPath) as! SabBarCell
 
         cell.tintColor = tabBar.tintColor
-        
+        cell.deselectedColor = deselectedColor
+      
         if let item = tabBar.items?[(indexPath as NSIndexPath).row] {
             cell.tabLabel.text = item.title
 
@@ -370,6 +379,9 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
                 cell.tabLabel.textColor = cell.tintColor
                 cell.tabImage.image = cell.tabSelectedImage
             } else {
+
+                cell.tabImage.tintColor = deselectedColor
+                cell.tabLabel.textColor = deselectedColor
                 cell.tabImage.image = cell.tabDeselectedImage
             }
         }
@@ -539,7 +551,7 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
       
       
         let border = UIView(frame: CGRect(x: 0, y: -navigationBarHeight, width: sidebarWidth, height: sidebar.frame.size.height + navigationBarHeight))
-        border.backgroundColor = UIColor.lightGray
+        border.backgroundColor = tabBar.barTintColor//UIColor.lightGray
         border.translatesAutoresizingMaskIntoConstraints = false
         border.accessibilityIdentifier = "Border"
         view.sendSubview(toBack: border)
@@ -572,7 +584,7 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
         sidebar.addConstraint(NSLayoutConstraint(item: border, attribute: .bottom, relatedBy: .equal, toItem: sidebar, attribute: .bottom, multiplier: 1, constant: 0))
         sidebar.addConstraint(NSLayoutConstraint(item: border, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: (1 / UIScreen.main.scale)))
         sidebar.addConstraint(NSLayoutConstraint(item: border, attribute: .leading, relatedBy: .equal, toItem: sidebar, attribute: .trailing, multiplier: 1, constant: 0))
-        
+      
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         view.addConstraint(NSLayoutConstraint(item: contentView, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1, constant: 0))
         view.addConstraint(NSLayoutConstraint(item: contentView, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1, constant: 0))
@@ -582,8 +594,8 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
 }
 
 class SabBarCell: UITableViewCell {
-   let imageHeight : CGFloat = 44//32
-   let labelHeight : CGFloat = 22//14
+   let imageHeight : CGFloat = 44//44//32
+   let labelHeight : CGFloat = 22//22//14
     
     var tabLabel: UILabel!
     var tabImage: UIImageView!
@@ -591,7 +603,11 @@ class SabBarCell: UITableViewCell {
     var tabSelectedImage : UIImage?
     var tabDeselectedImage : UIImage?
     
-    
+    var deselectedColor : UIColor = {
+      return UIColor(white: 0.9, alpha: 0.95)
+    }()
+   
+   
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         commonInit()
@@ -617,7 +633,7 @@ class SabBarCell: UITableViewCell {
         tabLabel = UILabel(frame: CGRect(x: 0, y: imageHeight, width: self.frame.size.width, height: labelHeight))
         tabLabel.translatesAutoresizingMaskIntoConstraints = false
         tabLabel.textAlignment = .center
-        tabLabel.font = UIFont.systemFont(ofSize: 13/*10*/)
+        tabLabel.font = UIFont.systemFont(ofSize: 14/*13*/ /*10*/)
         
         centeredView.addSubview(tabImage)
         centeredView.addSubview(tabLabel)
@@ -651,8 +667,10 @@ class SabBarCell: UITableViewCell {
             tabLabel.textColor = tintColor
             tabImage.image = tabSelectedImage
         } else {
-            tabImage.tintColor = UIColor(white: 0.9, alpha: 0.95)//UIColor.lightGray
-            tabLabel.textColor = UIColor(white: 0.9, alpha: 0.95)
+            tabImage.tintColor = deselectedColor
+            tabLabel.textColor = deselectedColor
+//            tabImage.tintColor = UIColor(white: 0.9, alpha: 0.95)//UIColor.lightGray
+//            tabLabel.textColor = UIColor(white: 0.9, alpha: 0.95)
             tabImage.image = tabDeselectedImage
         }
     }
