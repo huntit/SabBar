@@ -147,6 +147,18 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
         }
     }
 
+   /**
+    Choose a font for the sidebar labels.
+    */
+   @IBInspectable open var selectedFont : UIFont = UIFont.boldSystemFont(ofSize: 14)
+   @IBInspectable open var deselectedFont : UIFont = UIFont.systemFont(ofSize: 14)
+   
+   /**
+    Choose a color for the sidebar labels.
+    */
+   @IBInspectable open var selectedLabelColor : UIColor = UIColor.white
+   @IBInspectable open var deselectedLabelColor : UIColor = UIColor(white: 0.9, alpha: 0.95)
+   
    
    /**
     Choose a deselected color for the tabBar and the sidebar.
@@ -199,7 +211,7 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
      
      - parameter visible: if the sidebar should be visibile or not.
      */
-    open func toggleSidebar(visible: Bool) {
+    @objc open func toggleSidebar(visible: Bool) {
         if visible == false {
             self.sidebarWidthConstraint?.constant = 0
             self.sidebar.isHidden = true
@@ -367,6 +379,10 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
 
         cell.tintColor = tabBar.tintColor
         cell.deselectedColor = deselectedColor
+        cell.selectedFont = selectedFont
+        cell.deselectedFont = deselectedFont
+        cell.selectedLabelColor = selectedLabelColor
+        cell.deselectedLabelColor = deselectedLabelColor
       
         if let item = tabBar.items?[(indexPath as NSIndexPath).row] {
             cell.tabLabel.text = item.title
@@ -375,14 +391,17 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
             cell.tabSelectedImage = item.selectedImage?.withRenderingMode(.alwaysTemplate)
 
             if tabBar.selectedItem == item {
-                cell.tabImage.tintColor = cell.tintColor
-                cell.tabLabel.textColor = cell.tintColor
+               //cell.tabImage.tintColor = cell.tintColor
+               cell.tabImage.tintColor = selectedLabelColor
+//                cell.tabLabel.textColor = selectedTextColor
                 cell.tabImage.image = cell.tabSelectedImage
-            } else {
 
-                cell.tabImage.tintColor = deselectedColor
-                cell.tabLabel.textColor = deselectedColor
+            } else {
+//                cell.tabImage.tintColor = deselectedColor
+               cell.tabImage.tintColor = deselectedLabelColor
+//                cell.tabLabel.textColor = deselectedTextColor
                 cell.tabImage.image = cell.tabDeselectedImage
+
             }
         }
         
@@ -444,7 +463,16 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
     }
     
 // MARK: Constraints and sidebar creation
-    
+   
+   // rebuild the sidebar view with new settings - eg. when a theme changes
+   @objc open func rebuildSidebar() {
+
+      buildSidebarView()
+      tabTable.reloadData()
+      showAndHideSidebar(traitCollection)
+      
+   }
+   
     /**
      Setting up constraints in order to keep the header view as centered as 
      possible in relation to the navigation bar and the sidebar.
@@ -468,7 +496,7 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
         navigationBar.addConstraint(NSLayoutConstraint(item: headerView, attribute: .height, relatedBy: .lessThanOrEqual, toItem: navigationBar, attribute: .height, multiplier: 1, constant: -4))
     }
 
-    internal func buildSidebarView() {
+    fileprivate func buildSidebarView() {
         sidebar.removeFromSuperview()
         
         sidebar = UIView()
@@ -585,11 +613,13 @@ open class SabBarController: UITabBarController, UITableViewDataSource, UITableV
         sidebar.addConstraint(NSLayoutConstraint(item: border, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: (1 / UIScreen.main.scale)))
         sidebar.addConstraint(NSLayoutConstraint(item: border, attribute: .leading, relatedBy: .equal, toItem: sidebar, attribute: .trailing, multiplier: 1, constant: 0))
       
+      
         self.contentView.translatesAutoresizingMaskIntoConstraints = false
         view.addConstraint(NSLayoutConstraint(item: contentView, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1, constant: 0))
         view.addConstraint(NSLayoutConstraint(item: contentView, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1, constant: 0))
         view.addConstraint(NSLayoutConstraint(item: contentView, attribute: .leading, relatedBy: .equal, toItem: sidebar, attribute: .trailing, multiplier: 1, constant: 0))
         view.addConstraint(NSLayoutConstraint(item: contentView, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1, constant: 0))
+ 
     }
 }
 
@@ -606,6 +636,11 @@ class SabBarCell: UITableViewCell {
     var deselectedColor : UIColor = {
       return UIColor(white: 0.9, alpha: 0.95)
     }()
+   
+   var selectedFont : UIFont = UIFont.boldSystemFont(ofSize: 14)
+   var deselectedFont : UIFont = UIFont.systemFont(ofSize: 14)
+   var selectedLabelColor : UIColor = UIColor.white
+   var deselectedLabelColor : UIColor = UIColor(white: 0.9, alpha: 0.95)
    
    
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
@@ -633,7 +668,7 @@ class SabBarCell: UITableViewCell {
         tabLabel = UILabel(frame: CGRect(x: 0, y: imageHeight, width: self.frame.size.width, height: labelHeight))
         tabLabel.translatesAutoresizingMaskIntoConstraints = false
         tabLabel.textAlignment = .center
-        tabLabel.font = UIFont.systemFont(ofSize: 14/*13*/ /*10*/)
+      //tabLabel.font = UIFont.systemFont(ofSize: 14/*13*/ /*10*/)
         
         centeredView.addSubview(tabImage)
         centeredView.addSubview(tabLabel)
@@ -663,15 +698,19 @@ class SabBarCell: UITableViewCell {
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         if selected {
-            tabImage.tintColor = tintColor
-            tabLabel.textColor = tintColor
+//            tabImage.tintColor = tintColor
+            tabImage.tintColor = selectedLabelColor
+            tabLabel.textColor = selectedLabelColor
             tabImage.image = tabSelectedImage
+            tabLabel.font = selectedFont
         } else {
-            tabImage.tintColor = deselectedColor
-            tabLabel.textColor = deselectedColor
+//            tabImage.tintColor = deselectedColor
+            tabImage.tintColor = deselectedLabelColor
+            tabLabel.textColor = deselectedLabelColor
 //            tabImage.tintColor = UIColor(white: 0.9, alpha: 0.95)//UIColor.lightGray
 //            tabLabel.textColor = UIColor(white: 0.9, alpha: 0.95)
             tabImage.image = tabDeselectedImage
+            tabLabel.font = deselectedFont
         }
     }
 }
